@@ -19,7 +19,13 @@ export type GetApplicationRequest = {
   page_size: number;
 };
 
+export type GetSingleApplicationRequest = {
+  application_id: number;
+};
+
 export type GetApplicationResponse = BaseResponse<Application[]>;
+
+export type GetSingleApplicationResponse = BaseResponse<Application>;
 
 type GetApplicationRow = {
   id: number;
@@ -70,14 +76,26 @@ export function mapRowToApplication(row: GetApplicationRow): Application {
   };
 }
 
-export function toApplicationResponse(
+export function mapToApplicationResponse(
   message: string,
   meta: ResponseMeta,
   applications: Application[]
 ): GetApplicationResponse {
   return {
-    message: message,
+    message,
     data: applications,
+    meta,
+  };
+}
+
+export function mapToSingleApplicationResponse(
+  message: string,
+  meta: ResponseMeta,
+  application: Application
+): GetSingleApplicationResponse {
+  return {
+    message,
+    data: application,
     meta,
   };
 }
