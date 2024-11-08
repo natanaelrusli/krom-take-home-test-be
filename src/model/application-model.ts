@@ -13,9 +13,9 @@ export type Application = {
 export type GetApplicationRequest = {
   location?: string;
   job_role_id?: number;
-  status_id?: number;
+  status?: number;
   filter_keyword?: string;
-  curPage: number;
+  curr_page: number;
 };
 
 export type GetApplicationResponse = BaseResponse<Application[]>;
@@ -40,7 +40,7 @@ type GetApplicationRow = {
   role_name: string;
   role_created_time: string;
   role_updated_time: string;
-}
+};
 
 export function mapRowToApplication(row: GetApplicationRow): Application {
   return {
