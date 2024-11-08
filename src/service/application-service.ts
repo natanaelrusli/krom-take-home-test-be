@@ -9,11 +9,16 @@ export class ApplicationService {
   static async getAllApplications(
     request: GetApplicationRequest
   ): Promise<Application[]> {
-    const page_size = 10;
-    const { curr_page, filter_keyword, location, job_role_id, status } =
-      request;
+    const {
+      curr_page,
+      filter_keyword,
+      location,
+      job_role_id,
+      status,
+      page_size,
+    } = request;
 
-    const offset = (curr_page || 1 - 1) * page_size;
+    const offset = (curr_page - 1) * page_size;
 
     let getAllQuery = `
       SELECT 
@@ -24,7 +29,7 @@ export class ApplicationService {
       FROM Application a
       JOIN Applicant app ON a.applicants_id = app.id
       JOIN Role r ON a.role_id = r.id
-	  JOIN Location l ON app.location_id = l.id
+	    JOIN Location l ON app.location_id = l.id
     `;
 
     const values: unknown[] = [];
@@ -56,4 +61,6 @@ export class ApplicationService {
 
     return rows.map(mapRowToApplication);
   }
+
+  static async getOneApplication() {}
 }

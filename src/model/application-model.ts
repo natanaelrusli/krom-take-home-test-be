@@ -1,4 +1,4 @@
-import { BaseResponse, BaseData } from "../types";
+import { BaseResponse, BaseData, ResponseMeta } from "../types";
 import { Applicant } from "./applicant-model";
 import { Role } from "./role-model";
 
@@ -16,6 +16,7 @@ export type GetApplicationRequest = {
   status?: number;
   filter_keyword?: string;
   curr_page: number;
+  page_size: number;
 };
 
 export type GetApplicationResponse = BaseResponse<Application[]>;
@@ -71,10 +72,12 @@ export function mapRowToApplication(row: GetApplicationRow): Application {
 
 export function toApplicationResponse(
   message: string,
+  meta: ResponseMeta,
   applications: Application[]
 ): GetApplicationResponse {
   return {
     message: message,
     data: applications,
+    meta,
   };
 }
