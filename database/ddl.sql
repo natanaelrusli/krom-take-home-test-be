@@ -12,16 +12,26 @@ CREATE DATABASE applicant_tracking_db
     CONNECTION LIMIT = -1
     IS_TEMPLATE = False;
 
+CREATE TABLE Location (
+    id SERIAL PRIMARY KEY,
+    location_name VARCHAR(100),
+    created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_time TIMESTAMP,
+    deleted_time TIMESTAMP
+);
+
 CREATE TABLE Applicant (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100),
     email VARCHAR(100),
     phone_number VARCHAR(15),
-    location VARCHAR(100),
+    location_id INT,
+    profile_image VARCHAR,
     year_of_experience INT,
     created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_time TIMESTAMP,
-    updated_time TIMESTAMP
+    updated_time TIMESTAMP,
+    FOREIGN KEY (location_id) REFERENCES Location(id)
 );
 
 CREATE TABLE Role (

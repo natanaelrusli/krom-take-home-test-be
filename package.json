@@ -21,12 +21,14 @@
   "homepage": "https://github.com/natanaelrusli/krom-take-home-test-be#readme",
   "dependencies": {
     "dotenv": "^16.4.5",
+    "pg": "^8.13.1",
     "winston": "^3.16.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/node": "^22.9.0",
+    "@types/pg": "^8.11.10",
     "express": "^4.21.1",
     "husky": "^9.1.6",
     "ts-node": "^10.9.2",
