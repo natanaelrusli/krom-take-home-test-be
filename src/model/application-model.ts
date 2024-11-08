@@ -13,7 +13,7 @@ export type Application = {
 export type GetApplicationRequest = {
   location?: string;
   job_role_id?: number;
-  status?: number;
+  status?: string;
   filter_keyword?: string;
   curr_page: number;
   page_size: number;
