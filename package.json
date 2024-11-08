@@ -1,0 +1,35 @@
+{
+  "name": "krom-take-home-test-be",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node src/application/web.ts",
+    "build": "tsc",
+    "serve": "node dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/natanaelrusli/krom-take-home-test-be.git"
+  },
+  "keywords": [],
+  "author": "Nata Nael",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/natanaelrusli/krom-take-home-test-be/issues"
+  },
+  "homepage": "https://github.com/natanaelrusli/krom-take-home-test-be#readme",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "winston": "^3.16.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.9.0",
+    "express": "^4.21.1",
+    "husky": "^9.1.6",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}
