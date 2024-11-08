@@ -10,3 +10,7 @@ applicationsRouter.post(
   "/api/application",
   ApplicationController.getSingleApplication
 );
+applicationsRouter.post(
+  "/api/application/new",
+  ApplicationController.createNewApplication
+);

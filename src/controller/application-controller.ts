@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import {
   Application,
+  CreateApplicationRequest,
   GetApplicationRequest,
   GetSingleApplicationRequest,
   mapToApplicationResponse,
@@ -11,6 +12,12 @@ import { mapToResponseMeta, ResponseMeta } from "../types";
 import { NotFoundError } from "../errors/not-found-error";
 import { StatusCode } from "../constant/error-code";
 import { ResponseError } from "../errors/response-error";
+import {
+  validateEmail,
+  validateNumber,
+  validateString,
+  validateUrl,
+} from "../utils/validation";
 
 export class ApplicationController {
   static async getAllApplications(
@@ -67,6 +74,54 @@ export class ApplicationController {
     } catch (error) {
       if (error instanceof NotFoundError) {
         res.status(StatusCode.StatusNotFound).json({ message: error.message });
+      } else {
+        next(error);
+      }
+    }
+  }
+
+  static async createNewApplication(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const request: CreateApplicationRequest = {
+        applicant_name: validateString(
+          req.body.applicant_name,
+          "Applicant name"
+        ),
+        applicant_email: validateEmail(req.body.applicant_email),
+        applicant_phone_number: validateString(
+          req.body.applicant_phone_number,
+          "Phone number"
+        ),
+        role_id: validateNumber(req.body.role_id, "Role ID"),
+        years_of_experience: validateNumber(
+          req.body.years_of_experience,
+          "Years of experience"
+        ),
+        location_id: validateNumber(req.body.location_id, "Location ID"),
+        resume_link: validateUrl(req.body.resume_link),
+      };
+
+      const application: Application =
+        await ApplicationService.createNewApplication(request);
+
+      const meta: ResponseMeta = mapToResponseMeta(request);
+
+      res
+        .status(StatusCode.StatusCreated)
+        .json(
+          mapToSingleApplicationResponse(
+            "Application created successfully",
+            meta,
+            application
+          )
+        );
+    } catch (error) {
+      if (error instanceof ResponseError) {
+        res.status(error.status).json({ message: error.message });
       } else {
         next(error);
       }

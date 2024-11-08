@@ -8,6 +8,7 @@ export type Application = {
   role: Role;
   resume_link: string;
   status: string;
+  year_of_experience: number;
 } & BaseData;
 
 export type GetApplicationRequest = {
@@ -21,6 +22,16 @@ export type GetApplicationRequest = {
 
 export type GetSingleApplicationRequest = {
   application_id: number;
+};
+
+export type CreateApplicationRequest = {
+  applicant_name: string;
+  applicant_phone_number: string;
+  applicant_email: string;
+  role_id: number;
+  years_of_experience: number;
+  location_id: number;
+  resume_link: string;
 };
 
 export type GetApplicationResponse = BaseResponse<Application[]>;
@@ -59,10 +70,10 @@ export function mapRowToApplication(row: GetApplicationRow): Application {
       phone_number: row.phone_number,
       location: row.location_name,
       profile_image: row.profile_image,
-      year_of_experience: row.year_of_experience,
       created_time: row.applicant_created_time,
       updated_time: row.applicant_updated_time,
     },
+    year_of_experience: row.year_of_experience,
     role: {
       id: row.role_id,
       role_name: row.role_name,

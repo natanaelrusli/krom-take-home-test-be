@@ -1,7 +1,10 @@
+import { applicationStatus } from "../constant/application-status";
 import pool from "../database/pool";
 import { NotFoundError } from "../errors/not-found-error";
+import { ResponseError } from "../errors/response-error";
 import {
   Application,
+  CreateApplicationRequest,
   GetApplicationRequest,
   GetSingleApplicationRequest,
   mapRowToApplication,
@@ -25,7 +28,7 @@ export class ApplicationService {
     let getAllQuery = `
       SELECT 
         a.id, a.resume_link, a.status, a.created_time AS app_created_time, a.updated_time AS app_updated_time,
-        app.id AS applicant_id, app.name AS applicant_name, app.email, app.phone_number, app.location_id, l.location_name, app.profile_image, app.year_of_experience,
+        app.id AS applicant_id, app.name AS applicant_name, app.email, app.phone_number, app.location_id, l.location_name, app.profile_image, a.year_of_experience,
         app.created_time AS applicant_created_time, app.updated_time AS applicant_updated_time,
         r.id AS role_id, r.role_name, r.created_time AS role_created_time, r.updated_time AS role_updated_time
       FROM Application a
@@ -72,7 +75,7 @@ export class ApplicationService {
     let getAllQuery = `
       SELECT 
         a.id, a.resume_link, a.status, a.created_time AS app_created_time, a.updated_time AS app_updated_time,
-        app.id AS applicant_id, app.name AS applicant_name, app.email, app.phone_number, app.location_id, l.location_name, app.profile_image, app.year_of_experience,
+        app.id AS applicant_id, app.name AS applicant_name, app.email, app.phone_number, app.location_id, l.location_name, app.profile_image, a.year_of_experience,
         app.created_time AS applicant_created_time, app.updated_time AS applicant_updated_time,
         r.id AS role_id, r.role_name, r.created_time AS role_created_time, r.updated_time AS role_updated_time
       FROM Application a
@@ -97,5 +100,99 @@ export class ApplicationService {
     }
 
     return mapRowToApplication(rows[0]);
+  }
+
+  static async createNewApplication(
+    request: CreateApplicationRequest
+  ): Promise<Application> {
+    const {
+      applicant_name,
+      applicant_email,
+      applicant_phone_number,
+      role_id,
+      years_of_experience,
+      location_id,
+      resume_link,
+    } = request;
+
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+
+      const checkApplicantQuery = `
+        SELECT id FROM Applicant WHERE email = $1
+      `;
+      const checkApplicantResult = await client.query(checkApplicantQuery, [
+        applicant_email,
+      ]);
+
+      let applicantId: number;
+
+      if (checkApplicantResult.rows.length > 0) {
+        applicantId = checkApplicantResult.rows[0].id;
+      } else {
+        const insertApplicantQuery = `
+          INSERT INTO Applicant (name, email, phone_number, location_id, profile_image)
+          VALUES ($1, $2, $3, $4, 'https://avatars.githubusercontent.com/u/124599?v=4')
+          RETURNING id
+        `;
+        const applicantValues = [
+          applicant_name,
+          applicant_email,
+          applicant_phone_number,
+          location_id,
+        ];
+        const applicantResult = await client.query(
+          insertApplicantQuery,
+          applicantValues
+        );
+        applicantId = applicantResult.rows[0].id;
+      }
+
+      const checkApplicationQuery = `
+        SELECT id FROM Application WHERE applicants_id = $1 AND role_id = $2
+      `;
+      const checkApplicationResult = await client.query(checkApplicationQuery, [
+        applicantId,
+        role_id,
+      ]);
+
+      if (checkApplicationResult.rows.length > 0) {
+        throw new ResponseError(
+          400,
+          "This applicant has already applied for this role."
+        );
+      }
+
+      const insertApplicationQuery = `
+        INSERT INTO Application (applicants_id, role_id, resume_link, status, year_of_experience)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING id
+      `;
+      const applicationValues = [
+        applicantId,
+        role_id,
+        resume_link,
+        "Pending",
+        years_of_experience,
+      ];
+      const applicationResult = await client.query(
+        insertApplicationQuery,
+        applicationValues
+      );
+      const applicationId = applicationResult.rows[0].id;
+
+      await client.query("COMMIT");
+
+      const getSingleApplicationRequest: GetSingleApplicationRequest = {
+        application_id: applicationId,
+      };
+      return await this.getSingleApplication(getSingleApplicationRequest);
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
   }
 }
