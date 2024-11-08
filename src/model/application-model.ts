@@ -66,8 +66,6 @@ export function mapRowToApplication(row: GetApplicationRow): Application {
     role: {
       id: row.role_id,
       role_name: row.role_name,
-      created_time: row.role_created_time,
-      updated_time: row.role_updated_time,
     },
     resume_link: row.resume_link,
     status: row.status,

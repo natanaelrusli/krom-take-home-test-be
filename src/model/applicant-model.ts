@@ -1,4 +1,4 @@
-import { BaseType } from "../types";
+import { BaseData } from "../types";
 
 export type Applicant = {
   id: number;
@@ -8,4 +8,4 @@ export type Applicant = {
   location: string;
   profile_image: string;
   year_of_experience: number;
-} & BaseType
+} & BaseData;

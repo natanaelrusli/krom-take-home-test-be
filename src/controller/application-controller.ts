@@ -9,7 +9,7 @@ import {
 import { ApplicationService } from "../service/application-service";
 import { mapToResponseMeta, ResponseMeta } from "../types";
 import { NotFoundError } from "../errors/not-found-error";
-import { ErrorCode } from "../constant/error-code";
+import { StatusCode } from "../constant/error-code";
 import { ResponseError } from "../errors/response-error";
 
 export class ApplicationController {
@@ -35,7 +35,7 @@ export class ApplicationController {
       const meta: ResponseMeta = mapToResponseMeta(request);
 
       res
-        .status(ErrorCode.StatusOk)
+        .status(StatusCode.StatusOk)
         .json(mapToApplicationResponse("ok", meta, applications));
     } catch (error) {
       console.error(error);
@@ -62,11 +62,11 @@ export class ApplicationController {
         await ApplicationService.getSingleApplication(request);
 
       res
-        .status(ErrorCode.StatusOk)
+        .status(StatusCode.StatusOk)
         .json(mapToSingleApplicationResponse("ok", meta, application));
     } catch (error) {
       if (error instanceof NotFoundError) {
-        res.status(ErrorCode.StatusNotFound).json({ message: error.message });
+        res.status(StatusCode.StatusNotFound).json({ message: error.message });
       } else {
         next(error);
       }
