@@ -1,4 +1,5 @@
 import express, { Express, Response } from "express";
+import cors from "cors";
 import dotenv from "dotenv";
 import { logger, winstonLogger } from "../middleware/logger-middleware";
 import { applicationsRouter } from "../route/application-router";
@@ -11,6 +12,11 @@ const app: Express = express();
 const port = process.env.PORT || 3000;
 
 dotenv.config();
+
+if (process.env.NODE_ENV === "development") {
+  app.use(cors());
+}
+
 app.use(express.json());
 app.use(logger);
 app.use(applicationsRouter);
