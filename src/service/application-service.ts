@@ -120,7 +120,7 @@ export class ApplicationService {
       await client.query("BEGIN");
 
       const checkApplicantQuery = `
-        SELECT id FROM Applicant WHERE email = $1
+        SELECT id, name, phone_number, location_id FROM Applicant WHERE email = $1
       `;
       const checkApplicantResult = await client.query(checkApplicantQuery, [
         applicant_email,
@@ -129,7 +129,47 @@ export class ApplicationService {
       let applicantId: number;
 
       if (checkApplicantResult.rows.length > 0) {
-        applicantId = checkApplicantResult.rows[0].id;
+        // Applicant exists, fetch existing details
+        const existingApplicant = checkApplicantResult.rows[0];
+        applicantId = existingApplicant.id;
+
+        // Check if the applicant has previously applied for this role
+        const checkApplicationQuery = `
+          SELECT id FROM Application WHERE applicants_id = $1 AND role_id = $2
+        `;
+        const checkApplicationResult = await client.query(
+          checkApplicationQuery,
+          [applicantId, role_id]
+        );
+
+        if (checkApplicationResult.rows.length > 0) {
+          throw new ResponseError(
+            400,
+            "This applicant has already applied for this role."
+          );
+        }
+
+        // check applicants detail
+        // if existing detail not equal to the current payload
+        // update existing with the current payload data
+        if (
+          existingApplicant.name !== applicant_name ||
+          existingApplicant.phone_number !== applicant_phone_number ||
+          existingApplicant.location_id !== location_id
+        ) {
+          const updateApplicantQuery = `
+            UPDATE Applicant 
+            SET name = $1, phone_number = $2, location_id = $3
+            WHERE id = $4
+          `;
+          const updateValues = [
+            applicant_name,
+            applicant_phone_number,
+            location_id,
+            applicantId,
+          ];
+          await client.query(updateApplicantQuery, updateValues);
+        }
       } else {
         const insertApplicantQuery = `
           INSERT INTO Applicant (name, email, phone_number, location_id, profile_image)
@@ -147,21 +187,6 @@ export class ApplicationService {
           applicantValues
         );
         applicantId = applicantResult.rows[0].id;
-      }
-
-      const checkApplicationQuery = `
-        SELECT id FROM Application WHERE applicants_id = $1 AND role_id = $2
-      `;
-      const checkApplicationResult = await client.query(checkApplicationQuery, [
-        applicantId,
-        role_id,
-      ]);
-
-      if (checkApplicationResult.rows.length > 0) {
-        throw new ResponseError(
-          400,
-          "This applicant has already applied for this role."
-        );
       }
 
       const insertApplicationQuery = `
@@ -184,15 +209,23 @@ export class ApplicationService {
 
       await client.query("COMMIT");
 
-      const getSingleApplicationRequest: GetSingleApplicationRequest = {
+      return await this.getSingleApplication({
         application_id: applicationId,
-      };
-      return await this.getSingleApplication(getSingleApplicationRequest);
+      });
     } catch (error) {
       await client.query("ROLLBACK");
       throw error;
     } finally {
       client.release();
     }
+  }
+
+  static async getTotalDataCount(): Promise<number> {
+    const getCountQuery =
+      "SELECT COUNT(*) AS total_row_count FROM application LIMIT 1;";
+
+    const { rows } = await pool.query(getCountQuery);
+
+    return rows[0].total_row_count;
   }
 }

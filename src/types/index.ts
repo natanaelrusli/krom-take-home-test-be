@@ -8,6 +8,7 @@ export type ResponseMeta = {
   curr_page?: number;
   page_size?: number;
   timestamp: number;
+  total_data?: number;
 };
 
 export type BaseResponse<T> = {
@@ -16,10 +17,14 @@ export type BaseResponse<T> = {
   data: T;
 };
 
-export function mapToResponseMeta(req?: any): ResponseMeta {
+export function mapToResponseMeta(
+  req?: any,
+  total_data?: number
+): ResponseMeta {
   return {
     curr_page: req.curr_page || 1,
     page_size: req.page_size || 10,
     timestamp: Date.now(),
+    total_data: total_data,
   };
 }

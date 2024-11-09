@@ -39,7 +39,10 @@ export class ApplicationController {
       const applications: Application[] =
         await ApplicationService.getAllApplications(request);
 
-      const meta: ResponseMeta = mapToResponseMeta(request);
+      const totalDataCount: number =
+        await ApplicationService.getTotalDataCount();
+
+      const meta: ResponseMeta = mapToResponseMeta(request, totalDataCount);
 
       res
         .status(StatusCode.StatusOk)
