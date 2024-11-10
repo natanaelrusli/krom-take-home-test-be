@@ -212,6 +212,10 @@ export async function seedDatabase() {
   } catch (error) {
     await client.query("ROLLBACK");
     console.error("Error seeding database:", error);
+    console.error("Error seeding database db config:", {
+      user: process.env.DB_USER,
+      host: process.env.DB_HOST,
+    });
   } finally {
     client.release();
   }

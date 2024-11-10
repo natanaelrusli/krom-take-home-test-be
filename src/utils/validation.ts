@@ -25,10 +25,13 @@ export function validateNumber(value: any, fieldName: string): number {
   return value;
 }
 
-export function validateUrl(value: any): string {
+export function validateUrl(value: any, field?: string): string {
   try {
     new URL(value);
   } catch (_) {
+    if (field) {
+      throw new ResponseError(400, `${field} Invalid URL format.`);
+    }
     throw new ResponseError(400, `Invalid URL format.`);
   }
   return value;
