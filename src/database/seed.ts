@@ -162,17 +162,17 @@ export async function seedDatabase() {
       "john@example.com",
       "1234567890",
       locationResult.rows[0].id,
-      "https://example.com/john.jpg",
+      "https://picsum.photos/200",
       "Jane Smith",
       "jane@example.com",
       "0987654321",
       locationResult.rows[1].id,
-      "https://example.com/jane.jpg",
+      "https://picsum.photos/200",
       "Alice Johnson",
       "alice@example.com",
       "1122334455",
       locationResult.rows[2].id,
-      "https://example.com/alice.jpg",
+      "https://picsum.photos/200",
     ];
     const applicantResult = await client.query(applicantQuery, applicantValues);
     console.log("Inserted applicants:", applicantResult.rows);
