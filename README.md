@@ -1,67 +1,65 @@
 # Krom Take Home Test BE
 
-## Endpoints
+### API Documentation
 
-### Get All Applications
+[Postman Docs](https://documenter.getpostman.com/view/12104547/2sAY52czbw)
 
-Endpoint: POST /api/applications
+### Setup
 
-Request Body:
+#### Without Docker
 
-```json
-{
-  "location": "Indonesia",
-  "job_role_id": 12,
-  "status_id": 13,
-  "filter_keyword": "",
-  "curPage": 1,
-}
+1. Install all dependencies
+
+```
+npm install
 ```
 
-Response:
-```json
-{
-  "message": "ok",
-  "data": [
-    {
-      "application_id": 1,
-      "candidate_name": "Ethan",
-      "candidate_email": "ethan.robinson@email.com",
-      "role": "System Architect",
-      "application_status": "Candidate Rejected"
-    }
-  ]
-}
+2. Fill in `.env.example` and rename it to `.env`
+
+```
+DB_USER=postgres
+DB_HOST=localhost
+DB_DATABASE=applicant_tracking_db
+DB_PASSWORD=postgres
+DB_PORT=5432
 ```
 
-### Get Application Details
+3. Run seeder function for the db
 
-Endpoint: POST /api/application_detail
-
-Request Body:
-
-```json
-{
-  "application_id": 1,
-}
+```
+npm run seeddb
 ```
 
-Response:
-```json
-{
-  "message": "ok",
-  "data": {
-    "application_id": 1,
-    "candidate_name": "Ethan",
-    "candidate_email": "ethan.robinson@email.com",
-    "candidate_phone_number": "0987635463",
-    "years_of_experience": 6,
-    "role": "System Architect",
-    "location": "South Africa",
-    "resume_url": "http://resume.com",
-    "application_status": "Candidate Rejected"
-  }
-}
+4. Start the server
+
+```
+npm run start:dev
 ```
 
-### Create New Application
+#### With Docker
+
+In this instance, I use docker without docker-compose or docker desktop
+
+1. Build the Docker image
+
+```
+docker build -t my-express-app .
+```
+
+2. Create a network to allow communication between containers
+
+```
+docker network create my-network
+```
+
+3. Run a PostgreSQL container
+
+```
+docker run --name my-postgres-db --network my-network -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=applicant_tracking_db -p 5432:5432 -d postgres:14
+```
+
+4. Run express js app container
+
+```
+docker run --name my-express-app --network my-network -e DATABASE_URL=postgres://postgres:password@my-postgres-db:5432/applicant_tracking_db -p 3000:3000 -d my-express-app
+```

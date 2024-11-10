@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      - DB_USER=postgres
+      - DB_HOST=db
+      - DB_DATABASE=applicant_tracking_db
+      - DB_PASSWORD=postgres
+      - DB_PORT=5432
+    command: sh -c "npm run seeddb && npm start"
+
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: applicant_tracking_db
+    ports:
+      - "5432:5432"
