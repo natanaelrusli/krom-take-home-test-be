@@ -4,9 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "NODE_ENV=production ts-node src/application/web.ts",
     "start:dev": "NODE_ENV=development ts-node src/application/web.ts",
     "build": "tsc",
-    "serve": "node dist/index.js"
+    "serve": "node dist/index.js",
+    "seeddb": "ts-node src/database/seed.ts"
   },
   "repository": {
     "type": "git",
