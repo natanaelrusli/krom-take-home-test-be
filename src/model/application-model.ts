@@ -11,6 +11,11 @@ export type Application = {
   year_of_experience: number;
 } & BaseData;
 
+export type ApplicationWithTotal = {
+  data: Application[];
+  total: number;
+};
+
 export type GetApplicationRequest = {
   location?: string;
   job_role_id?: number;

@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import {
   Application,
+  ApplicationWithTotal,
   CreateApplicationRequest,
   GetApplicationRequest,
   GetSingleApplicationRequest,
@@ -36,7 +37,7 @@ export class ApplicationController {
         request.page_size = 15;
       }
 
-      const applications: Application[] =
+      const applications: ApplicationWithTotal =
         await ApplicationService.getAllApplications(request);
 
       const totalDataCount: number =
@@ -46,7 +47,13 @@ export class ApplicationController {
 
       res
         .status(StatusCode.StatusOk)
-        .json(mapToApplicationResponse("ok", meta, applications));
+        .json(
+          mapToApplicationResponse(
+            "ok",
+            { ...meta, total_data: applications.total },
+            applications.data
+          )
+        );
     } catch (error) {
       console.error(error);
       next(error);

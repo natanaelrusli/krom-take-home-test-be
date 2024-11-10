@@ -12,7 +12,7 @@ import {
 export class ApplicationService {
   static async getAllApplications(
     request: GetApplicationRequest
-  ): Promise<Application[]> {
+  ): Promise<{ data: Application[]; total: number }> {
     const {
       curr_page,
       filter_keyword,
@@ -58,13 +58,18 @@ export class ApplicationService {
       values.push(status);
     }
 
+    const { rowCount } = await pool.query(getAllQuery, values);
+
     getAllQuery += ` ORDER BY a.created_time DESC `;
     getAllQuery += `OFFSET $${values.length + 1} LIMIT $${values.length + 2}`;
     values.push(offset, page_size);
 
     const { rows } = await pool.query(getAllQuery, values);
 
-    return rows.map(mapRowToApplication);
+    return {
+      data: rows.map(mapRowToApplication),
+      total: rowCount || 0,
+    };
   }
 
   static async getSingleApplication(
