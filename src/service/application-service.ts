@@ -1,4 +1,3 @@
-import { applicationStatus } from "../constant/application-status";
 import pool from "../database/pool";
 import { NotFoundError } from "../errors/not-found-error";
 import { ResponseError } from "../errors/response-error";
@@ -59,7 +58,8 @@ export class ApplicationService {
       values.push(status);
     }
 
-    getAllQuery += ` OFFSET $${values.length + 1} LIMIT $${values.length + 2}`;
+    getAllQuery += ` ORDER BY a.created_time DESC `;
+    getAllQuery += `OFFSET $${values.length + 1} LIMIT $${values.length + 2}`;
     values.push(offset, page_size);
 
     const { rows } = await pool.query(getAllQuery, values);
