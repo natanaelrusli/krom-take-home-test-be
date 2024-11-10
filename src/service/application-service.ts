@@ -7,6 +7,7 @@ import {
   GetApplicationRequest,
   GetSingleApplicationRequest,
   mapRowToApplication,
+  UpdateApplicationStatueRequest,
 } from "../model/application-model";
 
 export class ApplicationService {
@@ -232,5 +233,37 @@ export class ApplicationService {
     const { rows } = await pool.query(getCountQuery);
 
     return rows[0].total_row_count;
+  }
+
+  static async updateApplicationStatus(
+    request: UpdateApplicationStatueRequest
+  ): Promise<Application> {
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+
+      const updateStatusQuery = `
+        UPDATE Application
+        SET status = $1, updated_time = NOW()
+        WHERE id = $2
+        RETURNING id, applicants_id, role_id, resume_link, status, year_of_experience, created_time, updated_time
+      `;
+      const updateValues = [request.new_status, request.application_id];
+      const result = await client.query(updateStatusQuery, updateValues);
+
+      if (result.rows.length === 0) {
+        throw new ResponseError(404, "Application not found");
+      }
+
+      await client.query("COMMIT");
+
+      const updatedApplication = mapRowToApplication(result.rows[0]);
+      return updatedApplication;
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
   }
 }

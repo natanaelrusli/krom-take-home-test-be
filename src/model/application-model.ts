@@ -39,6 +39,11 @@ export type CreateApplicationRequest = {
   resume_link: string;
 };
 
+export type UpdateApplicationStatueRequest = {
+  application_id: number;
+  new_status: string;
+};
+
 export type GetApplicationResponse = BaseResponse<Application[]>;
 
 export type GetSingleApplicationResponse = BaseResponse<Application>;

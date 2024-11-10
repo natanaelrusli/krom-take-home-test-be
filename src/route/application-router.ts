@@ -14,3 +14,7 @@ applicationsRouter.post(
   "/api/application/new",
   ApplicationController.createNewApplication
 );
+applicationsRouter.post(
+  "/api/application/status",
+  ApplicationController.updateApplicationStatus
+);

@@ -7,6 +7,7 @@ import {
   GetSingleApplicationRequest,
   mapToApplicationResponse,
   mapToSingleApplicationResponse,
+  UpdateApplicationStatueRequest,
 } from "../model/application-model";
 import { ApplicationService } from "../service/application-service";
 import { mapToResponseMeta, ResponseMeta } from "../types";
@@ -19,6 +20,7 @@ import {
   validateString,
   validateUrl,
 } from "../utils/validation";
+import { applicationStatus } from "../constant/application-status";
 
 export class ApplicationController {
   static async getAllApplications(
@@ -40,10 +42,7 @@ export class ApplicationController {
       const applications: ApplicationWithTotal =
         await ApplicationService.getAllApplications(request);
 
-      const totalDataCount: number =
-        await ApplicationService.getTotalDataCount();
-
-      const meta: ResponseMeta = mapToResponseMeta(request, totalDataCount);
+      const meta: ResponseMeta = mapToResponseMeta(request, applications.total);
 
       res
         .status(StatusCode.StatusOk)
@@ -125,6 +124,49 @@ export class ApplicationController {
         .json(
           mapToSingleApplicationResponse(
             "Application created successfully",
+            meta,
+            application
+          )
+        );
+    } catch (error) {
+      if (error instanceof ResponseError) {
+        res.status(error.status).json({ message: error.message });
+      } else {
+        next(error);
+      }
+    }
+  }
+
+  static async updateApplicationStatus(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const request: UpdateApplicationStatueRequest = {
+        application_id: req.body.application_id,
+        new_status: req.body.new_status,
+      };
+
+      const allStatuses = applicationStatus.map((val) => val.status);
+
+      if (!allStatuses.includes(request.new_status)) {
+        throw new ResponseError(
+          400,
+          "Status not valid: ['Applied', 'Contacted', 'Interview Scheduled', 'Interview Done', 'Offer Accepted','Hired', 'Candidate Rejected', 'Pending']"
+        );
+      }
+
+      const application: Application =
+        await ApplicationService.updateApplicationStatus(request);
+
+      const meta: ResponseMeta = mapToResponseMeta(request);
+
+      res
+        .status(StatusCode.StatusCreated)
+        .json(
+          mapToSingleApplicationResponse(
+            "Application updated successfully",
             meta,
             application
           )
